@@ -14,9 +14,9 @@ async function init() {
         updated_at TIMESTAMP DEFAULT NOW()
         );
     `);
-        console.log('✅ users table created');
+        console.log('users table created');
     } catch (err) {
-        console.error('❌ Error creating table:', err);
+        console.error('Error creating table:', err);
     } finally {
         pool.end();
     }

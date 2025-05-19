@@ -15,7 +15,10 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "pg": "^8.16.0"
+    "otplib": "^12.0.1",
+    "pg": "^8.16.0",
+    "smartapi-javascript": "^1.0.27",
+    "speakeasy": "^2.0.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
@@ -23,6 +26,7 @@
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.15.18",
     "@types/pg": "^8.15.2",
+    "@types/speakeasy": "^2.0.10",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
