@@ -19,7 +19,8 @@
     "otplib": "^12.0.1",
     "pg": "^8.16.0",
     "smartapi-javascript": "^1.0.27",
-    "speakeasy": "^2.0.0"
+    "speakeasy": "^2.0.0",
+    "yahoo-finance2": "^2.13.3"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

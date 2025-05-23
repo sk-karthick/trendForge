@@ -8,6 +8,7 @@ import { useTheme } from "next-themes";
 import { Input } from "@/components/ui/input";
 import useAngleOneCredentials from "@/hooks/useAngleOneCredentials";
 import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function Navbar() {
     const [open, setOpen] = useState(false);
@@ -35,7 +36,9 @@ export default function Navbar() {
 
     return (
         <nav className="flex justify-between items-center px-6 py-4 bg-muted shadow-md">
+            <SidebarTrigger />
             <h1 className="text-xl font-semibold">TrendForge</h1>
+
             <div className="flex items-center space-x-4">
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>

@@ -14,7 +14,6 @@ interface AngelOneCredentials {
   jwt_token?: string;
 }
 
-// Create or update user’s Angel One credentials
 export const storeAngelOneTokens = async (credentials: AngelOneCredentials): Promise<void> => {
   const {
     user_id,

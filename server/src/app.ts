@@ -8,7 +8,7 @@ import cors from 'cors';
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: 'http://localhost:3000', // or use '*' for development
+    origin: '*', // or use '*' for development
     credentials: true // if you're using cookies or sessions
 }));
 

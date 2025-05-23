@@ -1,33 +1,31 @@
-import { Request, Response } from "express";
 import dotenv from "dotenv";
-import { SmartAPI } from "smartapi-javascript";
-import speakeasy from 'speakeasy';
+import { Request, Response } from "express";
+import yahooFinance from 'yahoo-finance2';
 
 dotenv.config();
 
 const marketData = async (req: Request, res: Response) => {
-    
-    const smartConnect = new SmartAPI({ api_key: process.env.API_KEY });
-    
-    async function login() {
-        const totpCode = speakeasy.totp({
-            secret: process.env.TOTP_SECRET!,
-            encoding: 'base32',
-            step: 30,
-            digits: 6,
-        });
+    try {
+        const { symbol } = req.body;
+        console.log("Received symbol:", symbol);
 
-        try {
-            const user = await smartConnect.generateSession(process.env.CLIENT_CODE, process.env.MPIN, totpCode);
-            console.log('Angle one Login Success', user);
-
-            smartConnect.setAccessToken(user.access_token);  
-        } catch (error) {
-            console.error('Login Failed:', error);
+        if (!symbol) {
+            res.status(400).json({ error: "Symbol is required" });
+            return;
         }
-    }
 
-    login();
+        const queryOptions = { period1: '2013-01-01', period2: '2025-05-20' };
+        const result = await yahooFinance.chart(symbol + '.NS', queryOptions);
+        if (!result) {
+            res.status(404).json({ error: "No data found" });
+            return;
+        }
+        const { meta, quotes ,events} = result;
+        console.log(meta, quotes, events);
+        res.status(200).json({ meta, quotes, events });
+    } catch (error) {
+        console.error("Error fetching market data:", error);
+    }
 };
 
 export default marketData;
