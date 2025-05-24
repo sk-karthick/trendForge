@@ -15,9 +15,8 @@ import tensorflow_probability as tfp
 import io
 import os
 from typing import Tuple
-from .redis_client import redis_client  # Assuming redis_client is defined in another module
+from .redis_client import redis_client
 
-# Disable GPU if you're having CUDA issues (remove if you want GPU acceleration)
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 tfd = tfp.distributions
@@ -38,24 +37,12 @@ class ProbabilisticOutputLayer(tf.keras.layers.Layer):
         return tf.stack([loc, scale], axis=-1)
 
 def negative_log_likelihood(y_true, y_pred):
-    """Negative log likelihood loss function for probabilistic output"""
     loc = y_pred[..., 0]
     scale = y_pred[..., 1]
     dist = tfd.Normal(loc=loc, scale=scale)
     return -dist.log_prob(y_true)
 
 def forecast_stock(symbol: str, days: int) -> pd.DataFrame:
-    """
-    Forecast stock prices using a probabilistic LSTM model.
-    
-    Args:
-        symbol: Stock symbol to forecast
-        days: Number of days to forecast
-        redis_client: Redis client instance for data access
-        
-    Returns:
-        DataFrame with forecasted values and confidence intervals
-    """
     redis_key = f"quotes:{symbol}"
     raw_data = redis_client.get(redis_key)
     
@@ -67,7 +54,6 @@ def forecast_stock(symbol: str, days: int) -> pd.DataFrame:
     except Exception as e:
         raise ValueError(f"Error parsing JSON data: {str(e)}")
 
-    # Data preparation
     df.rename(columns={"date": "ds", "adjclose": "y"}, inplace=True)
     df["ds"] = pd.to_datetime(df["ds"]).dt.tz_localize(None)
     df = df.sort_values("ds").drop_duplicates("ds")
@@ -78,7 +64,6 @@ def forecast_stock(symbol: str, days: int) -> pd.DataFrame:
     if len(df) < 200:
         raise ValueError("Insufficient historical data (need at least 200 days)")
     
-    # Feature Engineering
     df['returns'] = df['y'].pct_change(fill_method=None)
     df['volatility'] = df['returns'].rolling(5).std()
     df['momentum'] = df['y'] - df['y'].shift(5)
@@ -94,7 +79,6 @@ def forecast_stock(symbol: str, days: int) -> pd.DataFrame:
 
     df = df.dropna()
     
-    # Feature Selection & Scaling
     feature_columns = [
         'y', 'returns', 'volatility', 'momentum',
         'sma_5', 'sma_10', 'sma_20',
@@ -117,7 +101,6 @@ def forecast_stock(symbol: str, days: int) -> pd.DataFrame:
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
     df.dropna(inplace=True)
 
-    # Sequence Preparation
     SEQ_LEN = 60
     FUTURE_STEPS = days
 
@@ -138,11 +121,9 @@ def forecast_stock(symbol: str, days: int) -> pd.DataFrame:
     X_train, X_val, X_test = X[:train_size], X[train_size:train_size+val_size], X[train_size+val_size:]
     y_train, y_val, y_test = y[:train_size], y[train_size:train_size+val_size], y[train_size+val_size:]
 
-    # Model Architecture
     def create_model(input_shape, future_steps, num_features):
         inputs = Input(shape=input_shape)
         
-        # LSTM layers
         lstm1 = LSTM(256, return_sequences=True, kernel_regularizer=l2(0.01))(inputs)
         lstm1 = BatchNormalization()(lstm1)
         lstm1 = Dropout(0.3)(lstm1)
@@ -151,7 +132,6 @@ def forecast_stock(symbol: str, days: int) -> pd.DataFrame:
         lstm2 = BatchNormalization()(lstm2)
         lstm2 = Dropout(0.3)(lstm2)
 
-        # Attention mechanism
         attention = MultiHeadAttention(num_heads=4, key_dim=64)(lstm2, lstm2)
         attention = LayerNormalization()(attention + lstm2)
 
@@ -159,7 +139,6 @@ def forecast_stock(symbol: str, days: int) -> pd.DataFrame:
         lstm3 = BatchNormalization()(lstm3)
         lstm3 = Dropout(0.3)(lstm3)
 
-        # Dense layers
         dense1 = Dense(128, activation='swish')(lstm3)
         dense1 = BatchNormalization()(dense1)
         dense1 = Dropout(0.2)(dense1)
@@ -168,7 +147,6 @@ def forecast_stock(symbol: str, days: int) -> pd.DataFrame:
         dense2 = BatchNormalization()(dense2)
         dense2 = Dropout(0.2)(dense2)
 
-        # Probabilistic output
         output = ProbabilisticOutputLayer(future_steps)(dense2)
         
         model = Model(inputs=inputs, outputs=output)
@@ -182,7 +160,6 @@ def forecast_stock(symbol: str, days: int) -> pd.DataFrame:
         num_features=len(feature_columns)
     )
 
-    # Callbacks
     callbacks = [
         EarlyStopping(patience=15, restore_best_weights=True, monitor='val_loss'),
         ReduceLROnPlateau(factor=0.5, patience=5, min_lr=1e-6),
@@ -190,7 +167,6 @@ def forecast_stock(symbol: str, days: int) -> pd.DataFrame:
         TensorBoard(log_dir=f'./logs/{symbol}')
     ]
 
-    # Model Training
     history = model.fit(
         X_train, y_train,
         epochs=100,
@@ -200,14 +176,12 @@ def forecast_stock(symbol: str, days: int) -> pd.DataFrame:
         verbose=1
     )
 
-    # Forecasting
     last_sequence = scaled_data[-SEQ_LEN:]
     num_samples = 100
     predictions = []
 
     for _ in range(num_samples):
         pred = model(last_sequence[np.newaxis, ...])
-        # Extract location parameter (mean) from the distribution
         predictions.append(pred[..., 0].numpy()[0])
 
     predictions = np.array(predictions)
@@ -226,9 +200,8 @@ def forecast_stock(symbol: str, days: int) -> pd.DataFrame:
         "yhat_upper": mean_predictions + 1.96 * std_predictions
     })
 
-    # Evaluation
     test_pred = model(X_test)
-    test_pred_mean = test_pred[..., 0].numpy()  # Get the mean predictions
+    test_pred_mean = test_pred[..., 0].numpy()
     test_pred_mean = scalers['y'].inverse_transform(test_pred_mean.reshape(-1, 1)).reshape(-1, FUTURE_STEPS)
 
     from sklearn.metrics import mean_absolute_error, mean_squared_error
