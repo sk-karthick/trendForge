@@ -54,9 +54,6 @@ const loginToAngelOne = async (req: Request, res: Response): Promise<void> => {
             return;
         }
 
-
-
-
         try {
             await storeAngelOneTokens({
                 user_id: user_id,
