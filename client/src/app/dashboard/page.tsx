@@ -6,7 +6,7 @@ import AppSideBar from '@/components/AppSideBar'
 import Dashboard from './Dashboard'
 
 const page = () => {
-  const [search, setSearch] = useState("")
+  const [search, setSearch] = useState("TCS")
   
   return (
     <SidebarProvider>

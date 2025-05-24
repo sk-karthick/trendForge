@@ -1,5 +1,6 @@
 "use client"
-import Chart from '@/components/Chart';
+import Chart from '@/components/chart/Chart';
+import ChartHeader from '@/components/chart/ChartHeader';
 import { transformToAreaSeriesData, transformToCandlestickData } from '@/lib/utils';
 import React, { useEffect, useState } from 'react'
 
@@ -8,18 +9,17 @@ interface DashboardProps {
 }
 
 const Dashboard = ({ search }: DashboardProps) => {
-    const [data, setData] = useState<any>(null);
+    const [chartData, setChartData] = useState<any>(null);
     const [candleData, setCandleData] = useState<any>([]);
     const [areaData, setAreaData] = useState<any>([]);
-
-    console.log("search", search);
-
+    const [headerData, setHeaderData] = useState<any>([]);
     useEffect(() => {
         try {
             const cached = localStorage.getItem(search);
             if (cached) {
                 const cachedData = JSON.parse(cached);
-                setData(cachedData.quotes);
+                setChartData(cachedData.quotes);
+                setHeaderData(cachedData.meta);
                 return;
             }
         } catch (error) {
@@ -28,16 +28,17 @@ const Dashboard = ({ search }: DashboardProps) => {
     }, [search])
 
     useEffect(() => {
-        if (!data) return;
-        const candleSeriesData = transformToCandlestickData(data);
+        if (!chartData) return;
+        const candleSeriesData = transformToCandlestickData(chartData);
         setCandleData(candleSeriesData);
-        const areaSeriesData = transformToAreaSeriesData(data);
+        const areaSeriesData = transformToAreaSeriesData(chartData);
         setAreaData(areaSeriesData);
-    }, [data]);
+    }, [chartData]);
 
 
     return (
         <div className="p-4">
+            <ChartHeader headerData={headerData} />
             <Chart candleData={candleData} areaData={areaData} />
         </div>
     )

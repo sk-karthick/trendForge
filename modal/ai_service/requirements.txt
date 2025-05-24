@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+pandas
+prophet
+redis
+python-dotenv
