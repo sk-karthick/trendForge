@@ -1,0 +1,39 @@
+# Model checkpoint files
+*.h5
+*.keras
+*.tf
+*.gitignore
+# TensorBoard logs
+logs/
+
+# Python cache and virtual environment
+__pycache__/
+*.py[cod]
+*$py.class
+.python-version
+venv/
+env/
+.venv/
+venv/
+**/venv/
+
+# IDE-specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Data files (if not meant to be tracked)
+*.csv
+*.json
+*.parquet
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Environment variables
+.env**/venv/
