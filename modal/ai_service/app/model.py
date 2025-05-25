@@ -147,11 +147,13 @@ def forecast_stock(symbol: str, days: int) -> pd.DataFrame:
         dense2 = BatchNormalization()(dense2)
         dense2 = Dropout(0.2)(dense2)
 
-        output = ProbabilisticOutputLayer(future_steps)(dense2)
+        # output = ProbabilisticOutputLayer(future_steps)(dense2)
+        output = Dense(future_steps)(dense2)
         
         model = Model(inputs=inputs, outputs=output)
-        model.compile(optimizer=Adam(learning_rate=0.001), loss=negative_log_likelihood)
-        
+        # model.compile(optimizer=Adam(learning_rate=0.001), loss=negative_log_likelihood)
+        model.compile(optimizer=Adam(0.001), loss='huber')
+
         return model
 
     model = create_model(

@@ -1,5 +1,16 @@
 # Model checkpoint files
 *.h5
+*.pyc
+*.mp4
+*.sh
+*bin
+*.log
+*.status
+*.sub
+*.TXT
+*.gz
+*.in
+*.am
 *.keras
 *.tf
 *.gitignore
@@ -10,12 +21,15 @@ logs/
 __pycache__/
 *.py[cod]
 *$py.class
+*.py[cod]
+*$py.class
 .python-version
 venv/
 env/
 .venv/
 venv/
 **/venv/
+*modal/ai_service/ta-lib/
 
 # IDE-specific files
 .vscode/
@@ -37,3 +51,7 @@ Thumbs.db
 
 # Environment variables
 .env**/venv/
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyc
