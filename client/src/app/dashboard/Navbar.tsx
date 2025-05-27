@@ -7,8 +7,11 @@ import { Switch } from "@/components/ui/switch";
 import { useTheme } from "next-themes";
 import { Input } from "@/components/ui/input";
 import useAngleOneCredentials from "@/hooks/useAngleOneCredentials";
-import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
+import { DialogTitle } from "@radix-ui/react-dialog";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { useSelector } from "react-redux";
+import ProfileModal from "@/components/ProfileModal";
 
 export default function Navbar() {
     const [open, setOpen] = useState(false);
@@ -21,6 +24,8 @@ export default function Navbar() {
         HISTORIC_API_KEY: "",
         REALTIME_API_KEY: "",
     });
+
+
 
     const handleThemeToggle = () => {
         setTheme(theme === "dark" ? "light" : "dark");
@@ -36,22 +41,26 @@ export default function Navbar() {
 
     return (
         <nav className="flex justify-between items-center px-6 py-4 bg-muted shadow-md">
-            <SidebarTrigger />
-            <h1 className="text-xl font-semibold">TrendForge</h1>
+            <div className="flex items-center space-x-4">
+                <SidebarTrigger />
+                <h1 className="text-xl font-semibold">NeuroTrade</h1>
+            </div>
+
+            <img src="/images/logo.png" className="w-[70px]" />
 
             <div className="flex items-center space-x-4">
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
                         <Button variant="outline">AngleOne</Button>
                     </DialogTrigger>
-                   
+
                     <DialogContent className="max-w-sm">
                         <DialogHeader className="mb-3">
                             <DialogTitle>Angle One</DialogTitle>
                         </DialogHeader>
                         <form method="POST" className="flex items-center justify-between flex-col gap-4 w-full ">
                             <div className="flex-0 w-full">
-                                <Input placeholder="Client Code" name="CLIENT_CODE" value={formData.CLIENT_CODE} onChange={(e) => setFormData({...formData, CLIENT_CODE : e.target.value})}/>
+                                <Input placeholder="Client Code" name="CLIENT_CODE" value={formData.CLIENT_CODE} onChange={(e) => setFormData({ ...formData, CLIENT_CODE: e.target.value })} />
                             </div>
                             <div className="flex-0 w-full">
                                 <Input placeholder="Password" name="CLIENT_PASSWORD" value={formData.CLIENT_PASSWORD} onChange={(e) => setFormData({ ...formData, CLIENT_PASSWORD: e.target.value })} />
@@ -78,6 +87,8 @@ export default function Navbar() {
                 <div className="flex items-center justify-between gap-2">
                     <Switch checked={theme === "dark"} onCheckedChange={handleThemeToggle} />
                 </div>
+                
+                <ProfileModal />
             </div>
         </nav>
     );

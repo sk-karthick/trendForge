@@ -15,7 +15,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         const hashedPassword = await bcrypt.hash(password_hash, 10);
         const user = await createUser(username, email, hashedPassword);
         const token = generateToken(user.id);
-        res.status(201).json({ token });
+        res.status(201).json({ token, user: { ...user, password_hash: undefined } });
     } catch (err) {
         console.log(err);
 
@@ -39,7 +39,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         }
 
         const token = generateToken(user.id);
-        res.status(200).json({ token });
+        res.status(200).json({ token, user: { ...user, password_hash: undefined } });
     } catch (err) {
         res.status(500).json({ message: 'Internal server error' });
     }

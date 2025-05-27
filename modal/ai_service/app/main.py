@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from app.model import forecast_stock
 from pydantic import BaseModel
+from app.model import forecast_until
 
 app = FastAPI()
 
@@ -22,3 +23,8 @@ async def get_forecast(symbol: str, days: int = 1):
     for record in result:
         record["ds"] = record["ds"].isoformat()
     return result
+
+@app.get("/forecast-until/" )
+def get_forecast_until(symbol: str, target_date: str):
+    result = forecast_until(symbol, target_date)
+    return result.to_dict(orient="records")

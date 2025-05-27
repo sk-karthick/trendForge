@@ -1,7 +1,10 @@
 import AuthCard from "@/components/auth/AuthCard";
+import useHydrate from "@/hooks/useHydrate";
 import Image from "next/image";
 
 export default function LoginPage() {
+    useHydrate()
+
     return (
         <div className="relative h-screen w-full">
             <Image

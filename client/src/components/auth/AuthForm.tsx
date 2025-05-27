@@ -5,20 +5,29 @@ import { Button } from "@/components/ui/button";
 import { useAuthLogin, useAuthRegister } from "@/hooks/useAuth";
 import { useState } from "react";
 import LoadingSpinner from "../ui/loadingSpinner";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/store/userSlice";
 
 interface AuthFormProps {
     mode: "login" | "register";
 }
 
 export default function AuthForm({ mode }: AuthFormProps) {
+    const dispatch = useDispatch();
+
     const [formData, setFormData] = useState({
         email: "",
         password: "",
         name: "",
     });
 
-    const { login, isLoggedIn, error, loading } = useAuthLogin();
+    const { login, isLoggedIn, error, loading,  user } = useAuthLogin();
     const { register, isRegistered, error: registerError, loading: registerLoading } = useAuthRegister();
+
+    if (user) {
+        dispatch(setUser(user));
+    }
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

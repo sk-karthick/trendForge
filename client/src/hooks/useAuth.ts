@@ -1,3 +1,4 @@
+import { User } from "@/types/user";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -5,12 +6,14 @@ type AuthResponse = {
     success: boolean;
     message: string;
     token?: string;
+    user?: User;
 };
 
 export const useAuthLogin = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [user, setUser] = useState<User | null>(null);
     const router = useRouter();
 
     const login = async (email: string, password: string): Promise<AuthResponse | void> => {
@@ -34,9 +37,11 @@ export const useAuthLogin = () => {
 
             setIsLoggedIn(true);
             localStorage.setItem("token", data.token || "");
+            localStorage.setItem("user-data", data.user? JSON.stringify(data.user) : "");
             sessionStorage.setItem("token", data.token || "");
+            setUser(data.user || null);
             router.push("/dashboard");
-            
+
             return data;
         } catch (err: any) {
             setError(err.message || "An error occurred during login.");
@@ -45,7 +50,7 @@ export const useAuthLogin = () => {
         }
     };
 
-    return { login, isLoggedIn, error, loading };
+    return { login, isLoggedIn, error, loading, user};
 };
 
 export const useAuthRegister = () => {
@@ -82,4 +87,25 @@ export const useAuthRegister = () => {
     };
 
     return { register, isRegistered, error, loading };
+};
+
+export const useAuthLogout = () => {
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
+
+    const logout = async (): Promise<void> => {
+        setLoading(true);
+        try {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user-data");
+            sessionStorage.removeItem("token");
+            router.push("/");
+        } catch (error) {
+            console.error("Logout failed:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return { logout, loading };
 };
